@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cyber-Eyes Demo</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header>
+    <h1>Cyber-Eyes Demo</h1>
+    <p>Interactive demonstration of the Cyber-Eyes logging system</p>
+    <nav>
+      <a href="index.html" class="active">Main Demo</a>
+      <a href="api-demo.html">API Integration Demo</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="controls">
+      <div class="control-group">
+        <h2>Log Level</h2>
+        <div class="radio-group">
+          <label>
+            <input type="radio" name="log-level" value="TRACE"> TRACE
+          </label>
+          <label>
+            <input type="radio" name="log-level" value="DEBUG"> DEBUG
+          </label>
+          <label>
+            <input type="radio" name="log-level" value="INFO" checked> INFO
+          </label>
+          <label>
+            <input type="radio" name="log-level" value="WARN"> WARN
+          </label>
+          <label>
+            <input type="radio" name="log-level" value="ERROR"> ERROR
+          </label>
+          <label>
+            <input type="radio" name="log-level" value="FATAL"> FATAL
+          </label>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <h2>Component</h2>
+        <select id="component-select">
+          <option value="all">All Components</option>
+          <option value="ui">UI</option>
+          <option value="api">API</option>
+          <option value="game">Game Engine</option>
+          <option value="audio">Audio</option>
+          <option value="input">Input</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <h2>Actions</h2>
+        <button id="btn-log-trace">Log TRACE</button>
+        <button id="btn-log-debug">Log DEBUG</button>
+        <button id="btn-log-info">Log INFO</button>
+        <button id="btn-log-warn">Log WARN</button>
+        <button id="btn-log-error">Log ERROR</button>
+        <button id="btn-log-fatal">Log FATAL</button>
+      </div>
+
+      <div class="control-group">
+        <h2>Scenarios</h2>
+        <button id="btn-scenario-game">Load Game</button>
+        <button id="btn-scenario-api">API Request</button>
+        <button id="btn-scenario-error">Trigger Error</button>
+        <button id="btn-scenario-trace">Trace Request</button>
+      </div>
+    </section>
+
+    <section class="log-viewer">
+      <div class="log-header">
+        <h2>Log Output</h2>
+        <div class="log-controls">
+          <button id="btn-clear-logs">Clear Logs</button>
+          <label>
+            <input type="checkbox" id="auto-scroll" checked> Auto-scroll
+          </label>
+        </div>
+      </div>
+      <div class="log-container">
+        <pre id="log-output"></pre>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>Cyber-Eyes - A comprehensive logging system for WebAX applications</p>
+  </footer>
+
+  <script src="cyber-eyes.js"></script>
+  <script src="demo.js"></script>
+</body>
+</html>

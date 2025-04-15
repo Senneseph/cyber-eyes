@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cyber-Eyes API Demo</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .api-demo {
+      margin-top: 2rem;
+    }
+    
+    .api-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    
+    .api-request, .api-response {
+      background-color: var(--card-background);
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    .api-request h3, .api-response h3 {
+      margin-top: 0;
+      color: var(--primary-color);
+    }
+    
+    .api-url {
+      display: flex;
+      margin-bottom: 1rem;
+    }
+    
+    .api-url input {
+      flex-grow: 1;
+      padding: 8px;
+      border: 1px solid var(--border-color);
+      border-radius: 4px 0 0 4px;
+    }
+    
+    .api-url button {
+      border-radius: 0 4px 4px 0;
+      margin: 0;
+    }
+    
+    .api-options {
+      margin-bottom: 1rem;
+    }
+    
+    .api-options label {
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+    
+    .api-options select {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      background-color: var(--card-background);
+    }
+    
+    .response-container {
+      background-color: #f8f8f8;
+      border-radius: 4px;
+      padding: 10px;
+      font-family: monospace;
+      white-space: pre-wrap;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    
+    .logs-container {
+      margin-top: 1rem;
+      background-color: #f8f8f8;
+      border-radius: 4px;
+      padding: 10px;
+      font-family: monospace;
+      white-space: pre-wrap;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    
+    .log-entry {
+      padding: 4px 8px;
+      margin-bottom: 4px;
+      border-radius: 4px;
+      border-left: 4px solid transparent;
+    }
+    
+    .log-entry.trace {
+      border-left-color: var(--trace-color);
+      background-color: rgba(158, 158, 158, 0.1);
+    }
+    
+    .log-entry.debug {
+      border-left-color: var(--debug-color);
+      background-color: rgba(33, 150, 243, 0.1);
+    }
+    
+    .log-entry.info {
+      border-left-color: var(--info-color);
+      background-color: rgba(76, 175, 80, 0.1);
+    }
+    
+    .log-entry.warn {
+      border-left-color: var(--warn-color);
+      background-color: rgba(255, 152, 0, 0.1);
+    }
+    
+    .log-entry.error {
+      border-left-color: var(--error-color);
+      background-color: rgba(244, 67, 54, 0.1);
+    }
+    
+    .log-entry.fatal {
+      border-left-color: var(--fatal-color);
+      background-color: rgba(156, 39, 176, 0.1);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Cyber-Eyes API Demo</h1>
+    <p>Demonstration of dynamic log level control in API requests</p>
+  </header>
+
+  <main>
+    <section class="api-demo">
+      <div class="api-container">
+        <div class="api-request">
+          <h3>API Request</h3>
+          <div class="api-url">
+            <input type="text" id="api-url" value="https://jsonplaceholder.typicode.com/posts" placeholder="API URL">
+            <button id="send-request">Send</button>
+          </div>
+          <div class="api-options">
+            <label for="log-level">Log Level</label>
+            <select id="log-level">
+              <option value="none">None (No logs)</option>
+              <option value="TRACE">TRACE</option>
+              <option value="DEBUG">DEBUG</option>
+              <option value="INFO" selected>INFO</option>
+              <option value="WARN">WARN</option>
+              <option value="ERROR">ERROR</option>
+              <option value="FATAL">FATAL</option>
+            </select>
+          </div>
+          <p>This demo simulates an API request with a <code>log-level</code> parameter. In a real implementation, the server would return logs based on this parameter.</p>
+        </div>
+        <div class="api-response">
+          <h3>API Response</h3>
+          <div class="response-container" id="response-data">
+            No response yet
+          </div>
+          <h4>Server Logs</h4>
+          <div class="logs-container" id="server-logs">
+            No logs yet
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>Cyber-Eyes - A comprehensive logging system for WebAX applications</p>
+    <a href="index.html">Back to Main Demo</a>
+  </footer>
+
+  <script src="cyber-eyes.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Initialize Cyber-Eyes
+      CyberEyes.configure({
+        defaultLevel: CyberEyes.LogLevel.INFO
+      });
+      
+      // Create loggers for client and server simulation
+      const clientLogger = new CyberEyes('api-demo', 'client');
+      const serverLogger = new CyberEyes('api-demo', 'server');
+      
+      // Get DOM elements
+      const apiUrlInput = document.getElementById('api-url');
+      const logLevelSelect = document.getElementById('log-level');
+      const sendRequestButton = document.getElementById('send-request');
+      const responseData = document.getElementById('response-data');
+      const serverLogs = document.getElementById('server-logs');
+      
+      // Send request button click handler
+      sendRequestButton.addEventListener('click', async () => {
+        const url = apiUrlInput.value.trim();
+        const logLevel = logLevelSelect.value;
+        
+        if (!url) {
+          clientLogger.error({
+            message: 'API URL is required'
+          });
+          return;
+        }
+        
+        // Clear previous response and logs
+        responseData.textContent = 'Loading...';
+        serverLogs.innerHTML = '';
+        
+        try {
+          // Log the request
+          clientLogger.info({
+            message: 'Sending API request',
+            url,
+            logLevel
+          });
+          
+          // Create the URL with log-level parameter if selected
+          let requestUrl = url;
+          if (logLevel !== 'none') {
+            requestUrl += (url.includes('?') ? '&' : '?') + `log-level=${logLevel}`;
+          }
+          
+          // Start a trace for this request
+          const trace = CyberEyes.startTrace();
+          
+          // Simulate server-side logging
+          simulateServerLogs(logLevel, trace.traceId);
+          
+          // Send the actual request
+          const response = await fetch(requestUrl);
+          const data = await response.json();
+          
+          // Display the response
+          responseData.textContent = JSON.stringify(data, null, 2);
+          
+          // Log the response
+          clientLogger.info({
+            message: 'Received API response',
+            status: response.status,
+            dataSize: JSON.stringify(data).length
+          });
+        } catch (error) {
+          // Log the error
+          clientLogger.error({
+            message: 'Error sending API request',
+            error: {
+              name: error.name,
+              message: error.message,
+              stack: error.stack
+            }
+          });
+          
+          // Display the error
+          responseData.textContent = `Error: ${error.message}`;
+        }
+      });
+      
+      // Simulate server-side logging
+      function simulateServerLogs(requestedLogLevel, traceId) {
+        // Clear previous logs
+        serverLogs.innerHTML = '';
+        
+        // If no logs requested, return
+        if (requestedLogLevel === 'none') {
+          serverLogs.innerHTML = '<div class="log-entry info">No logs requested</div>';
+          return;
+        }
+        
+        // Set the server logger's level based on the requested level
+        CyberEyes.setComponentLogLevel('api-demo', 'server', requestedLogLevel);
+        
+        // Set the trace context
+        CyberEyes.setTraceContext({ traceId });
+        
+        // Generate simulated logs
+        const logs = [];
+        
+        // TRACE level logs
+        serverLogger.trace({
+          message: 'Request received',
+          traceId,
+          timestamp: new Date().toISOString()
+        });
+        
+        serverLogger.trace({
+          message: 'Parsing request parameters',
+          traceId,
+          timestamp: new Date(Date.now() + 10).toISOString()
+        });
+        
+        // DEBUG level logs
+        serverLogger.debug({
+          message: 'Validating request',
+          traceId,
+          timestamp: new Date(Date.now() + 20).toISOString()
+        });
+        
+        serverLogger.debug({
+          message: 'Checking cache for response',
+          traceId,
+          cacheKey: 'posts',
+          timestamp: new Date(Date.now() + 30).toISOString()
+        });
+        
+        // INFO level logs
+        serverLogger.info({
+          message: 'Cache miss, fetching from database',
+          traceId,
+          timestamp: new Date(Date.now() + 40).toISOString()
+        });
+        
+        serverLogger.info({
+          message: 'Retrieved 100 posts from database',
+          traceId,
+          count: 100,
+          duration: 45.2,
+          timestamp: new Date(Date.now() + 90).toISOString()
+        });
+        
+        // WARN level logs
+        serverLogger.warn({
+          message: 'Database query took longer than expected',
+          traceId,
+          duration: 45.2,
+          threshold: 30,
+          timestamp: new Date(Date.now() + 100).toISOString()
+        });
+        
+        // ERROR level logs (only if we're simulating an error)
+        if (Math.random() < 0.2) {
+          serverLogger.error({
+            message: 'Error connecting to cache server',
+            traceId,
+            error: {
+              name: 'ConnectionError',
+              message: 'Connection refused',
+              stack: 'Error: Connection refused\n    at CacheClient.connect (cache.js:42)\n    at ApiHandler.getCachedData (api.js:15)'
+            },
+            timestamp: new Date(Date.now() + 110).toISOString()
+          });
+        }
+        
+        // Get all logs from localStorage (this is just for the demo)
+        const allLogs = CyberEyes.getLogs ? CyberEyes.getLogs() : [];
+        
+        // Filter logs by trace ID and component
+        const serverLogs = allLogs.filter(log => 
+          log.traceId === traceId && 
+          log.component === 'server'
+        );
+        
+        // Display the logs
+        if (serverLogs.length === 0) {
+          document.getElementById('server-logs').innerHTML = '<div class="log-entry info">No server logs available</div>';
+        } else {
+          // Sort logs by timestamp
+          serverLogs.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+          
+          // Display logs
+          document.getElementById('server-logs').innerHTML = serverLogs.map(log => {
+            const timestamp = new Date(log.timestamp).toLocaleTimeString();
+            return `<div class="log-entry ${log.level.toLowerCase()}">
+              <span class="log-timestamp">${timestamp}</span>
+              <span class="log-level">[${log.level}]</span>
+              <span class="log-message">${log.message}</span>
+              ${log.duration ? `<span class="log-duration">(${log.duration.toFixed(2)}ms)</span>` : ''}
+            </div>`;
+          }).join('');
+        }
+      }
+      
+      // Add CyberEyes.getLogs method for the demo
+      CyberEyes.getLogs = function() {
+        // This is a simplified version for the demo
+        // In a real implementation, this would retrieve logs from storage
+        return window._cyberEyesLogs || [];
+      };
+      
+      // Override the processLogEntry method to store logs in memory for the demo
+      const originalProcessLogEntry = CyberEyes.prototype.processLogEntry;
+      CyberEyes.prototype.processLogEntry = function(logEntry) {
+        // Call the original method
+        originalProcessLogEntry.call(this, logEntry);
+        
+        // Store the log entry in memory
+        window._cyberEyesLogs = window._cyberEyesLogs || [];
+        window._cyberEyesLogs.push(logEntry);
+      };
+    });
+  </script>
+</body>
+</html>
