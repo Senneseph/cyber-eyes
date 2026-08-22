@@ -1,17 +1,21 @@
 /**
- * Cyber-Eyes Logging System
- * 
- * A comprehensive, high-performance logging system for WebAX applications.
+ * Cyber-Eyes — the standardized logging system for WebAX applications.
+ *
+ * Structured, level-filtered logging scoped to a service + component, with
+ * global and per-service/component level control.
  */
 
-export { CyberEyes } from './core/cyber-eyes';
-export { LogLevel } from './core/log-level';
-export { configure, setLogLevel, getLogger } from './core/config';
-export { startTrace, getTraceContext, setTraceContext, startChildSpan } from './core/trace';
-export { wrapFunction, createMethodDecorator } from './core/instrumentation';
-export { createOpenAPILoggerMiddleware, wrapOpenAPIOperation } from './openapi/server';
-export { apiClient } from './openapi/client';
+export { CyberEyes, getLogger } from './core/cyber-eyes.js';
+export type { LogData } from './core/cyber-eyes.js';
+export { LogLevel, LOG_LEVEL_VALUES, shouldLog, isValidLogLevel } from './core/log-level.js';
+export {
+  configure,
+  setLogLevel,
+  setServiceLogLevel,
+  setComponentLogLevel,
+  getLevelFor,
+} from './core/config.js';
+export type { Config } from './core/config.js';
 
-// Default export
-import { CyberEyes } from './core/cyber-eyes';
+import { CyberEyes } from './core/cyber-eyes.js';
 export default CyberEyes;
